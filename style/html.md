@@ -19,3 +19,7 @@
     </div>
     ```
 
+1. css names are limited to the following characters
+    + a-z; lowercased
+    + 0-9; but never at the beginning of the class name
+    + the special characters; `_`, `-`
