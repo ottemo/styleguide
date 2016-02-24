@@ -14,11 +14,11 @@
 ## File Naming & Hierarchy
 1. `kebab-case.html` all file names; lowercase, dash-separated
 
-1. module declaration files should be named `init.js`
+1. Module declaration files should be named `init.js`
 
-1. add a `.type` suffix for all other js files; `pdp/ot-related-products.directive.js`, `pdp/view.controller.js`
+1. Add a `.type` suffix for all other js files; `pdp/ot-related-products.directive.js`, `pdp/view.controller.js`
 
-1. templates, css, and controller should have similar names, and live in the same folder
+1. Templates, css, and js should have similar names, and live in the same folder
   * `pdp/view.html`, `pdp/view.scss`, `pdp/view.controller.js (PdpViewController)`
   * `pdp/ot-related-products.html`, `pdp/ot-related-products.directive.js`
 
@@ -47,7 +47,8 @@ Each file should contain one "thing"; module definition, controller, service, et
     `PdpViewController` = `/pdp/view.controller.js`
 
 1. Use Function Declarations to hide implementation details
-    Use function declarations to hide implementation details. Keep your bindable members up top. When you need to bind a function in a controller, point it to a function declaration that appears later in the file. This is tied directly to the section Bindable Members Up Top. For more details see [this post](http://www.johnpapa.net/angular-function-declarations-function-expressions-and-readable-code/).
+    
+    Keep your bindable members up top. When you need to bind a function in a controller, point it to a function declaration that appears later in the file. This is tied directly to the section Bindable Members Up Top. For more details see [this post](http://www.johnpapa.net/angular-function-declarations-function-expressions-and-readable-code/).
 
     Why?: Placing bindable members at the top makes it easy to read and helps you instantly identify which members of the controller can be bound and used in the View. (Same as above.)
 
@@ -61,9 +62,9 @@ Each file should contain one "thing"; module definition, controller, service, et
 
     ```js
     /**
-    * avoid
-    * Using function expressions.
-    */
+     * bad
+     * Using function expressions.
+     */
     function AvengersController(avengersService, logger) {
         var vm = this;
         vm.avengers = [];
@@ -91,10 +92,10 @@ Each file should contain one "thing"; module definition, controller, service, et
     Notice that the important stuff is scattered in the preceding example. In the example below, notice that the important stuff is up top. For example, the members bound to the controller such as vm.avengers and vm.title. The implementation details are down below. This is just easier to read.
     ```js
     /*
-    * recommend
-    * Using function declarations
-    * and bindable members up top.
-    */
+     * good
+     * Using function declarations
+     * and bindable members up top.
+     */
     function AvengersController(avengersService, logger) {
         var vm = this;
         vm.avengers = [];
@@ -239,12 +240,12 @@ Each file should contain one "thing"; module definition, controller, service, et
 
 1. Services should **not** be prefixed with a dollar sign `$` this is considered reserved for angular internals
 
-1. Prefer factories over services
-    * all services are singletons, since they are so similar just stick with factories for consistency
+1. Prefer `factory` over `service`
+    + all services are singletons, since they are so similar just stick with factories for consistency.
 
 1. Keep the accessible methods at the top, and var declarations at the top.
     ```js
-    /* avoid */
+    /* bad */
     function dataService() {
       var someValue = '';
       function save() {
@@ -263,7 +264,7 @@ Each file should contain one "thing"; module definition, controller, service, et
     ```
 
     ```js
-    /* recommended */
+    /* good */
     function dataService() {
         var someValue = '';
         var service = {
@@ -286,7 +287,9 @@ Each file should contain one "thing"; module definition, controller, service, et
     ```
 
 1. Use function declarations to hide implementation details
-    Why: Same reasons as listed in the controllers section
+
+    + _Why:_ Same reasons as listed in the controllers section
+    
     ```js
     // bad
     var getAvengers = function() {
