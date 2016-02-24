@@ -9,7 +9,33 @@
 1. [Directives](#directives)
 
 ## General
-1. Review the [.jshintrc](/style/.jshintrc) file for general style guidelines; additionally you can run jshint on any of the js repos.
+1. Review the [.jshintrc](/style/.jshintrc) file for general style guidelines; additionally you can run jshint with `gulp vet` on any of the repos. Here is a quick summary though:
+    + 4-spaces for indenting
+    + single quote everything
+    + use `===` instead of `==`
+    + always use curly braces
+    + max depth of nested blocks is 5
+    + max params is 10
+
+1. Avoid using the `delete` keyword
+    
+    _Why:_ In modern JavaScript engines, changing the number of properties on an object is much slower than reassigning the values.
+
+    ```js
+    // bad
+    Foo.prototoype.dispose = function() {
+        delete this.property;
+    }
+
+    // good
+    Foo.prototoype.dispose = function() {
+        this.property = null;
+    }
+    ```
+
+1. Use methods that are included in our libraries if it makes the code more legible
+    + `angular.forEach` is much nicer than a for loop with hasOwnProperty checks
+    + `_.map()`, `_.find()`, `_.sortBy()`, `_.filter()`, `_.kebabCase()`, `_.debounce()`
 
 ## File Naming & Hierarchy
 1. `kebab-case.html` all file names; lowercase, dash-separated
@@ -268,8 +294,39 @@ Each file should contain one "thing"; module definition, controller, service, et
 
 ## Directives
 1. One directive per file
-1. Prefix ottemo directives with `ot`
+
+1. Prefix ottemo directives with `ot-`
+
+1. Never prefix with `ng-`
+
 1. Restrict to attributes and elements `EA`
+
+1. Template with `[].join('')` instead of string concatenation
+
+    _Why:_ Improves readability as code can be indented properly, it also avoids the + operator which is less clean and can lead to errors if used incorrectly to split lines
+
+    ```js
+    // bad
+    function someDirective() {
+        return {
+            template: '<div>'+
+            '<i>' + hello + '</i>' +
+            '</div>';
+        };
+    }
+
+    // good
+    function someDirective() {
+        return {
+            template: [
+                '<div>',
+                    '<i>',hello,'</i>',
+                '</div>',
+            ].join('')
+        };
+    }
+    ```
+
 1. Notes
     1. Use `$attributes.$observe()` to watch evaluated attributes
     2. `$element` is already an angular / jquery wrapped object
