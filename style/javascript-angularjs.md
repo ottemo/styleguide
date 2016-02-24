@@ -16,11 +16,13 @@
 
 1. Module declaration files should be named `init.js`
 
-1. Add a `.type` suffix for all other js files; `pdp/ot-related-products.directive.js`, `pdp/view.controller.js`
+1. Add a `.type` suffix for all other js files
+    + `pdp/ot-related-products.directive.js`
+    + `pdp/view.controller.js`
 
 1. Templates, css, and js should have similar names, and live in the same folder
-  * `pdp/view.html`, `pdp/view.scss`, `pdp/view.controller.js (PdpViewController)`
-  * `pdp/ot-related-products.html`, `pdp/ot-related-products.directive.js`
+    + `pdp/view.html`, `pdp/view.scss`, `pdp/view.controller.js (PdpViewController)`
+    + `pdp/ot-related-products.html`, `pdp/ot-related-products.directive.js`
 
 ## File Contents
 Each file should contain one "thing"; module definition, controller, service, etc
@@ -45,6 +47,10 @@ Each file should contain one "thing"; module definition, controller, service, et
 
 1. Controller names should be a representation of the file system location
     `PdpViewController` = `/pdp/view.controller.js`
+
+1. Put the bindable members up top
+    + If the function is a 1 liner consider keeping it right up top, as long as readability is not affected.
+    + This ties in with next point, and the examples provided in the next point
 
 1. Use Function Declarations to hide implementation details
     
@@ -104,6 +110,8 @@ Each file should contain one "thing"; module definition, controller, service, et
 
         activate();
 
+        ///////////////////////
+
         function activate() {
             return getAvengers().then(function() {
                 logger.info('Activated Avengers View');
@@ -115,51 +123,6 @@ Each file should contain one "thing"; module definition, controller, service, et
                 vm.avengers = data;
                 return vm.avengers;
             });
-        }
-    }
-    ```
-
-1. Put the bindable members up top
-    *  If the function is a 1 liner consider keeping it right up top, as long as readability is not affected.
-
-    ```js
-    /* bad */
-    function SessionsController() {
-        var vm = this;
-
-        vm.gotoSession = function() {
-          /* ... */
-        };
-        vm.refresh = function() {
-          /* ... */
-        };
-        vm.search = function() {
-          /* ... */
-        };
-        vm.sessions = [];
-        vm.title = 'Sessions';
-    }
-
-    /* good */
-    function SessionsController() {
-        var vm = this;
-
-        vm.gotoSession = gotoSession;
-        vm.refresh = refresh;
-        vm.search = search;
-        vm.sessions = [];
-        vm.title = 'Sessions';
-
-        ////////////
-
-        function gotoSession() {
-          /* ... */
-        }
-        function refresh() {
-          /* ... */
-        }
-        function search() {
-          /* ... */
         }
     }
     ```
@@ -201,7 +164,7 @@ Each file should contain one "thing"; module definition, controller, service, et
 
     Declaring the controller in the config:
     ```js
-    // recommended
+    // good
     angular.module('app')
     .config(function($routeProvider) {
         $routeProvider
@@ -289,7 +252,7 @@ Each file should contain one "thing"; module definition, controller, service, et
 1. Use function declarations to hide implementation details
 
     + _Why:_ Same reasons as listed in the controllers section
-    
+
     ```js
     // bad
     var getAvengers = function() {
