@@ -1,80 +1,50 @@
 # JavaScript & AngularJS Styleguide
 
+1. [General](#general)
 1. [File Naming & Hierarchy](#file-naming--hierarchy)
 1. [File Contents](#file-contents)
 1. [Modules](#modules)
 1. [Controllers](#controllers)
-    1. names should be `UpperCamelCase`
-    1. names should have the suffix `Controller`
-    1. use the `controllerAs` syntax
-    1. capture the variable for this in `vm`
-    1. use function declarations to hide implementation details `function doThing() {}`
-    1. put bindable members up top
-    1. use an `activate` method to house any initialization logic
 1. [Services](#services)
+1. [Directives](#directives)
+
+## General
+1. Review the [.jshintrc](/style/.jshintrc) file for general style guidelines; additionally you can run jshint on any of the js repos.
 
 ## File Naming & Hierarchy
-1. `kebab-case.html` or `kebab-case.type.js` all files
+1. `kebab-case.html` all file names; lowercase, dash-separated
 
-1. template, css, and controller should have similar names, and live in the same folder
-  * pdp/view.html
-  * pdp/view.scss
-  * pdp/view.controller.js -> PdpViewController
+1. module declaration files should be named `init.js`
+
+1. add a `.type` suffix for all other js files; `pdp/ot-related-products.directive.js`, `pdp/view.controller.js`
+
+1. templates, css, and controller should have similar names, and live in the same folder
+  * `pdp/view.html`, `pdp/view.scss`, `pdp/view.controller.js (PdpViewController)`
+  * `pdp/ot-related-products.html`, `pdp/ot-related-products.directive.js`
 
 ## File Contents
 Each file should contain one "thing"; module definition, controller, service, etc
 
 ## Modules
-A module declaration should use the setter syntax
-```js
-// good: setter syntax to declare module
-angular.module('app', []);
+1. Module declaration files should be called `init.js`
 
-// good: getter syntax to recall module
-angular.module('app')
-.controller('SomeController', SomeController);
-```
+1. A module declaration should use the setter syntax, other files should use the getter syntax
+    ```js
+    // good: setter syntax to declare module
+    angular.module('app', []);
+
+    // good: getter syntax to recall module
+    angular.module('app')
+    .controller('SomeController', SomeController);
+    ```
 
 ## Controllers
 1. Controller names should be `UpperCamelCase`
 
 1. Controller names should be suffixed with `Controller` ie. `CustomerController` or `CheckoutController`
 
-1. Prefer the `controllerAs` syntax, this promotes the use of _dotted_ objects
-    * if the controller is the view model controller try to name it `vm` for consistency
-    * if the controller is embedded then consider naming it something else
-
-    Declaring the controller in the config:
-    ```js
-    // recommended
-    angular.module('app')
-    .config(function($routeProvider) {
-        $routeProvider
-            .when('/avengers', {
-                templateUrl: 'avengers.html',
-                controller: 'Avengers',
-                controllerAs: 'vm'
-            })
-    });
-    ```
-
-    Declaring the controller in the html:
-    ```html
-    <!-- bad -->
-    <div ng-controller="CustomerController">{{ name }}</div>
-
-    <!-- good -->
-    <div ng-controller="CustomerController as customer">{{ customer.name }}</div>
-    ```
-
-1. Capture the variable for `this` with `vm` in the controller code as well, for consistency
-    ```js
-    // good
-    function CustomerController() {
-        var vm = this;
-        vm.name = {};
-    }
-    ```
+1. Controller names should be a representation of the file system location
+    `PdpViewController` = `/pdp/view.controller.js`
 
 1. Use Function Declarations to hide implementation details
     Use function declarations to hide implementation details. Keep your bindable members up top. When you need to bind a function in a controller, point it to a function declaration that appears later in the file. This is tied directly to the section Bindable Members Up Top. For more details see [this post](http://www.johnpapa.net/angular-function-declarations-function-expressions-and-readable-code/).
@@ -220,7 +190,58 @@ angular.module('app')
     }
     ```
 
+1. View controllers should not be re-used across multiple views
+    + _Why:_ In theory reusing code like this is a good way to keep the codebase DRY, in practice this leads to confusion and errors.
+    + View controllers should not be embedded in other views, we did this with the CartController and LoginController let those mistakes serve as a lesson to us.
+
+1. Prefer the `controllerAs` syntax, this promotes the use of _dotted_ objects
+    + if the controller is the view model controller try to name it `vm` for consistency
+    + if the controller is embedded then consider naming it something else
+
+    Declaring the controller in the config:
+    ```js
+    // recommended
+    angular.module('app')
+    .config(function($routeProvider) {
+        $routeProvider
+            .when('/avengers', {
+                templateUrl: 'avengers.html',
+                controller: 'Avengers',
+                controllerAs: 'vm'
+            })
+    });
+    ```
+
+    Declaring the controller in the html:
+    ```html
+    <!-- bad -->
+    <div ng-controller="CustomerController">{{ name }}</div>
+
+    <!-- good -->
+    <div ng-controller="CustomerController as customer">{{ customer.name }}</div>
+    ```
+
+1. Capture the variable for `this` with `vm` in the controller code as well, for consistency
+    ```js
+    // good
+    function CustomerController() {
+        var vm = this;
+        vm.name = {};
+    }
+    ```
+
+
 ## Services
+1. Service names should be `lowerCamelCased`
+
+1. Service names should only be suffixed with `Service` when it is not apparent what they are
+    logger, customerService, 
+
+1. Services should **not** be prefixed with a dollar sign `$` this is considered reserved for angular internals
+
+1. Prefer factories over services
+    * all services are singletons, since they are so similar just stick with factories for consistency
+
 1. Keep the accessible methods at the top, and var declarations at the top.
     ```js
     /* avoid */
@@ -275,3 +296,14 @@ angular.module('app')
     function getAvengers() {
     }
     ```
+
+1. Data calls should always return a promise
+
+
+## Directives
+1. One directive per file
+1. Prefix ottemo directives with `ot`
+1. Restrict to attributes and elements `EA`
+1. Notes
+    1. Use `$attributes.$observe()` to watch evaluated attributes
+    2. `$element` is already an angular / jquery wrapped object
