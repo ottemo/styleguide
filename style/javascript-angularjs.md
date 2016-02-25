@@ -11,8 +11,8 @@
 ## General
 1. Review the [.jshintrc](/style/.jshintrc) file for general style guidelines; additionally you can run jshint with `gulp vet` on any of the repos. Here is a quick summary though:
     + 4-spaces for indenting
-    + single quote everything
-    + use `===` instead of `==`
+    + use single quotes `'single quotes'`
+    + use tripple equals `===` instead of `==`
     + always use curly braces
     + max depth of nested blocks is 5
     + max params is 10
