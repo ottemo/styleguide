@@ -9,8 +9,12 @@
 1. [Directives](#directives)
 
 ## General
-1. Review the [.jshintrc](/style/.jshintrc) file for general style guidelines; additionally you can run jshint with `gulp vet` on any of the repos. Here is a quick summary though:
+1. Review the general enforcement files; [JSHint](/style/.jshintrc), [JSBeautify](/style/.jsbeautifyrc), [Editor Config](/style/.editorconfig)
+
+    jshint can be run with the `gulp vet` task on any of the repos, here is a short-list though:
+
     + 4-spaces for indenting
+    + unix line endings; 'lf'
     + use single quotes `'single quotes'`
     + use tripple equals `===` instead of `==`
     + always use curly braces

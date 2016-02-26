@@ -9,3 +9,5 @@ As you work on files try to leave them in state closer to our style guides than 
 ## Style Enforcement
 1. [JSHint](/style/.jshintrc)
 1. [JSBeautify](/style/.jsbeautifyrc)
+1. [Editor Config](/style/.editorconfig)
+1. [Git Attributes](/style/.gitattributes)
