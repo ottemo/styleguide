@@ -25,7 +25,7 @@
     
     _Why:_ In modern JavaScript engines, changing the number of properties on an object is much slower than reassigning the values.
 
-    ```js
+    ```
     // bad
     Foo.prototoype.dispose = function() {
         delete this.property;
@@ -54,6 +54,28 @@
     + `pdp/view.html`, `pdp/view.scss`, `pdp/view.controller.js (PdpViewController)`
     + `pdp/ot-related-products.html`, `pdp/ot-related-products.directive.js`
 
+## Themes
+We use themes for sharing common frontend code between stores
+1. Direcotry structure:
+    ```js
+    src/
+        default/
+        <theme>/
+    ```
+    `default` is a distinct git repository that implements default theme, contains all necessary frontend code to build a default store.  
+    `<theme>` contains specific code for a store.
+1. Setup a new store:  
+     - Create `src/default` and clone default theme repository into it. Add this directory to .gitignore in the store.
+     - Create custom store theme in `src/<themeName>`. 
+     - Config themes in `gulp.config.js`  
+       ```js  
+       base = 'default', // src/default Default theme
+       theme = 'ultimo'; // src/ultimo  Store theme
+        ```
+1. Files from `<theme>` overwrite files from `default`. If you need to modify code in `default`, create a file with the same name and path in `<theme>`.
+1. To overwrite styles, copy `app.scss` from `default` into `theme`. You should place all sass imports in `app.scss`, avoid importing in other sass files. Then you are able to overwrite every sass file from `default` and import new styles in your theme
+1. If you need to change controllers, prefer controller inheritance instead of overwriting
+
 ## File Contents
 Each file should contain one "thing"; module definition, controller, service, etc
 
@@ -78,84 +100,146 @@ Each file should contain one "thing"; module definition, controller, service, et
 1. Controller names should be a representation of the file system location
     `PdpViewController` = `/pdp/view.controller.js`
 
-1. Put the bindable members up top
-    + If the function is a 1 liner consider keeping it right up top, as long as readability is not affected.
-    + This ties in with next point, and the examples provided in the next point
+1. Controller filename should be suffixed with 'controller.js'  
+    `accordion.controller.js`
 
-1. Use Function Declarations to hide implementation details
+1. Controller inheritance in themes.  
+    Most of the time we need to slightly modify or extend default controllers. Use controller inheritance in such cases.  
+    Steps to create a child controller:  
+    + Child controller filename should be the same as parent and prefixed with `_`   
+        ```
+        parent:     src/default/checkout/accordiion.controller.js
+        child:      src/ultimo/checkout/_accordiion.controller.js
+        ``` 
+        
+    + To implement inheritance use the next code in child controller   
+    `src/ultimo/checkout/_accordiion.controller.js`:   
     
-    Keep your bindable members up top. When you need to bind a function in a controller, point it to a function declaration that appears later in the file. This is tied directly to the section Bindable Members Up Top. For more details see [this post](http://www.johnpapa.net/angular-function-declarations-function-expressions-and-readable-code/).
-
-    Why?: Placing bindable members at the top makes it easy to read and helps you instantly identify which members of the controller can be bound and used in the View. (Same as above.)
-
-    Why?: Placing the implementation details of a function later in the file moves that complexity out of view so you can see the important stuff up top.
-
-    Why?: Function declaration are hoisted so there are no concerns over using a function before it is defined (as there would be with function expressions).
-
-    Why?: You never have to worry with function declarations that moving var a before var b will break your code because a depends on b.
-
-    Why?: Order is critical with function expressions
-
-    ```js
-    /**
-     * bad
-     * Using function expressions.
-     */
-    function AvengersController(avengersService, logger) {
-        var vm = this;
-        vm.avengers = [];
-        vm.title = 'Avengers';
-
-        var activate = function() {
-            return getAvengers().then(function() {
-                logger.info('Activated Avengers View');
-            });
+        ```js
+        .controller('checkoutAccordionController', [
+        '$controller', '$scope'
+        function($controller, $scope) {
+            $controller('_checkoutAccordionController', { $scope: $scope });
+        }]);
+        ```  
+        Notice that we use parent name for child controller:  
+        ```js
+        .controller('checkoutAccordionController' ...
+        ```
+        but prefix it with `_` in $controller call
+        ```js
+        $controller('_checkoutAccordionController'...
+        ```
+        
+    + Overwrite parent methods, add new code:
+        ```js
+        angular.module('checkoutModule')
+        .controller('checkoutAccordionController', [
+            '$controller',
+            '$scope',
+            function (
+                $controller,
+                $scope
+            ) {
+                $controller('checkoutAccordionController', { $scope: $scope});
+        
+                // Overwrite 'next' method
+                $scope.next = function(step) {
+                    switch (step) {
+                        case 'billingAddress':
+                            $scope._actionBillingAddress(step);
+                            break;
+                        case 'shippingAddress':
+                            $scope._actionShippingAddress(step);
+                            break;
+                        case 'shippingMethod':
+                            $scope._actionShippingMethod(step);
+                            break;
+                        case 'paymentMethod':
+                            $scope._actionPaymentMethod(step);
+                            break;
+                        case 'customerInfo':
+                            $scope._actionCustomerAdditionalInfo(step);
+                            break;
+                        // Add new step 
+                        case: 'newStep':
+                            $scope._actionNewStep(step);
+                            break;
+                        default:
+                            $scope._actionDefault(step);
+                    }
+                };
+        
+                // New step method
+                $scope._actionNewStep = function(step) {
+                    // Do something here...
+                };
+        ]);
+        ```
+    
+    + Controller methods that are allowed to be overriden in child controllers should be present in the scope.  
+        ```js
+        // Can be overriden in child controller
+        $scope._info = function() {
+                return checkoutService.update().then(function (checkout) {
+                    ...
+                   
+                });
+            };
+        
+        // Cannot be changed in child
+        function info() {
+            return checkoutService.update().then(function (checkout) {
+                    ...
+                    
+                });
         }
+        ```
+    + Avoid invoking any functions directly in controller. Move initialization to the template using `ng-init`
+        ```js
+        /** bad
+        *  if we create child visitorAccountController, 
+        *  activate() will be invoked before any modifications 
+        */
+        .controller("visitorAccountController", [
+        "$scope",
+        ...
+        function($scope, ...) {
+            $scope.visitor = visitorLoginService.getVisitor();
+            ...
+            activate();
+    
+            ////////////////////////////////
+    
+            function activate() {
+                ...
+            }
+        ```
+        
+        ```js
+        /* good
+        *  don't call any functions on controller instantiation
+        */
+        angular.module("visitorModule")
+        .controller("visitorAccountController", [
+            "$scope",
+            ...
+            function($scope, ...) {
+                $scope.changePswCredentials = {};
+                ...
+                ////////////////////////////////
+        
+                $scope.activate = function () {
+                    ...
+                };
+        ```
+        
+        ```html
+        <!-- in the template -->
+        <i class="init-controller" ng-init="activate()"></i>
+        ```
 
-        var getAvengers = function() {
-            return avengersService.getAvengers().then(function(data) {
-                vm.avengers = data;
-                return vm.avengers;
-            });
-        }
-
-        vm.getAvengers = getAvengers;
-
-        activate();
-    }
-    ```
-
-    Notice that the important stuff is scattered in the preceding example. In the example below, notice that the important stuff is up top. For example, the members bound to the controller such as vm.avengers and vm.title. The implementation details are down below. This is just easier to read.
-    ```js
-    /*
-     * good
-     * Using function declarations
-     * and bindable members up top.
-     */
-    function AvengersController(avengersService, logger) {
-        var vm = this;
-        vm.avengers = [];
-        vm.getAvengers = getAvengers;
-        vm.title = 'Avengers';
-
-        activate();
-
-        ///////////////////////
-
-        function activate() {
-            return getAvengers().then(function() {
-                logger.info('Activated Avengers View');
-            });
-        }
-
-        function getAvengers() {
-            return avengersService.getAvengers().then(function(data) {
-                vm.avengers = data;
-                return vm.avengers;
-            });
-        }
-    }
-    ```
+    
 
 1. Use an `activate()` method to house any initialization logic
     ```js
@@ -165,11 +249,9 @@ Each file should contain one "thing"; module definition, controller, service, et
         vm.getAvengers = getAvengers;
         vm.title = 'Avengers';
 
-        activate();
+        .///////////////////
 
-        ////////////////////
-
-        function activate() {
+        $scope.activate = function(){
             return getAvengers().then(function() {
                 logger.info('Activated Avengers View');
             });
