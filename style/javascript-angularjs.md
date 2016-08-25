@@ -56,25 +56,34 @@
 
 ## Themes
 We use themes for sharing common frontend code between stores
-1. Direcotry structure:
-    ```js
+
+1. Directory structure:
+
+```
+    js
     src/
         default/
         <theme>/
-    ```
-    `default` is a distinct git repository that implements default theme, contains all necessary frontend code to build a default store.  
-    `<theme>` contains specific code for a store.
-1. Setup a new store:  
-     - Create `src/default` and clone default theme repository into it. Add this directory to .gitignore in the store.
-     - Create custom store theme in `src/<themeName>`. 
-     - Config themes in `gulp.config.js`  
-       ```js  
-       base = 'default', // src/default Default theme
-       theme = 'ultimo'; // src/ultimo  Store theme
-        ```
+```
+**Notes**
+
+      `default` is a distinct git repository that implements default theme, contains all necessary frontend code to build a default store. 
+    
+     `<theme>` contains specific code for a store.
+
+1. To setup a new store:  
+     * Create `src/default` and clone default theme repository into it. Add this directory to .gitignore in the store.
+     * Create custom store theme in `src/<themeName>`. 
+     * Config themes in `gulp.config.js`  
+```
+    js  
+    base = 'default', // src/default Default theme
+    theme = 'ultimo'; // src/ultimo  Store theme
+```
+
 1. Files from `<theme>` overwrite files from `default`. If you need to modify code in `default`, create a file with the same name and path in `<theme>`.
-1. To overwrite styles, copy `app.scss` from `default` into `theme`. You should place all sass imports in `app.scss`, avoid importing in other sass files. Then you are able to overwrite every sass file from `default` and import new styles in your theme
-1. If you need to change controllers, prefer controller inheritance instead of overwriting
+2. To overwrite styles, copy `app.scss` from `default` into `theme`. You should place all sass imports in `app.scss`, avoid importing in other sass files. Then you are able to overwrite every sass file from `default` and import new styles in your theme
+3. If you need to change controllers, prefer controller inheritance instead of overwriting
 
 ## File Contents
 Each file should contain one "thing"; module definition, controller, service, etc
